@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	bigquery "github.com/bonitoo-io/go-sql-bigquery"
 	_ "github.com/bonitoo-io/go-sql-bigquery/dialects/bigquery"
+	"log"
 	"os"
 	"time"
 )
@@ -13,12 +13,11 @@ import (
 func main() {
 	var err error
 	var db *gorm.DB
-	logrus.SetLevel(logrus.DebugLevel)
 
 	// Get the Connection String from the Environment Variable of BIGQUERY_CONNECTION_STRING
 	uri := os.Getenv(bigquery.ConnectionStringEnvKey)
 	if db, err = gorm.Open("bigquery", uri); err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	db.LogMode(true)
 	db.AutoMigrate(&Animal{})
@@ -34,7 +33,7 @@ func main() {
 	}
 	err = db.Save(django).Error
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 }

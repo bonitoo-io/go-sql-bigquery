@@ -6,10 +6,8 @@ import (
 	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
-	"reflect"
 	"strings"
 	"time"
 )
@@ -79,7 +77,6 @@ func namedValueToValue(named []driver.NamedValue) ([]driver.Value, error) {
 
 func prepareQuery(query string, args []driver.Value) (out string, err error) {
 	if len(args) > 0 {
-		logrus.Debugf("Preparing Query: %s ", query)
 
 		for _, arg := range args {
 			switch value := arg.(type) {
@@ -101,12 +98,10 @@ func prepareQuery(query string, args []driver.Value) (out string, err error) {
 					query = strings.Replace(query, "?", fmt.Sprintf("FROM_BASE64('%s')", data64), 1)
 				}
 			default:
-				logrus.Debugf("unknown type: %s", reflect.TypeOf(value).String())
 				query = strings.Replace(query, "?", fmt.Sprintf("'%s'", value), 1)
 			}
 
 		}
-		logrus.Debugf("Prepared Query: %s ", query)
 		out = query
 
 	} else {
@@ -117,7 +112,6 @@ func prepareQuery(query string, args []driver.Value) (out string, err error) {
 
 // Deprecated: Drivers should implement ExecerContext instead.
 func (c *Conn) Exec(query string, args []driver.Value) (res driver.Result, err error) {
-	logrus.Debugf("Got Conn.Exec: %s", query)
 	if query, err = prepareQuery(query, args); err != nil {
 		return
 	}
@@ -142,7 +136,6 @@ func (c *Conn) Exec(query string, args []driver.Value) (res driver.Result, err e
 	res = &result{
 		rowsAffected: int64(it.TotalRows),
 	}
-	logrus.Debugf("Results for Conn.Exec: %s", data)
 
 	return
 }
@@ -237,10 +230,8 @@ func (c *Conn) Ping(ctx context.Context) (err error) {
 	var md *bigquery.DatasetMetadata
 	md, err = c.ds.Metadata(ctx)
 	if err != nil {
-		logrus.Debugf("Failed Ping Dataset: %s", c.cfg.DatasetID)
 		return
 	}
-	logrus.Debugf("Successful Ping: %s", md.FullID)
 	return
 }
 
@@ -248,7 +239,6 @@ func (c *Conn) Ping(ctx context.Context) (err error) {
 func (c *Conn) Query(query string, args []driver.Value) (rows driver.Rows, err error) {
 	// This is a HACK for the mocking that we have to do as the google cloud package doesn't include/use interfaces
 	// TODO: Come back if we ever can avoid the Interface hack...
-	logrus.Debugf("Got Conn.Query: %s", query)
 	q := c.client.Query(query)
 	ctx := context.TODO()
 	var rowsIterator *bigquery.RowIterator

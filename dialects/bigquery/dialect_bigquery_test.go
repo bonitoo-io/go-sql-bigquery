@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/bonitoo-io/go-sql-bigquery"
 	"github.com/jinzhu/gorm"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
-	bigquery "github.com/bonitoo-io/go-sql-bigquery"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
@@ -59,7 +58,6 @@ func (m *mockDB) QueryRow(query string, args ...interface{}) *sql.Row {
 
 func setupDialectTests(t testing.TB) func(t testing.TB) {
 	// Debug stuff
-	logrus.SetLevel(logrus.DebugLevel)
 	testDialect = new(Dialect)
 	var err error
 	testDB, testDBMock, err = sqlmock.New()

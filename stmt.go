@@ -3,7 +3,6 @@ package bigquery
 import (
 	"context"
 	"database/sql/driver"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 )
 
 type stmt struct {
@@ -25,7 +24,6 @@ func (s *stmt) NumInput() int {
 
 // Deprecated: Drivers should implement StmtExecContext instead (or additionally).
 func (s *stmt) Exec(args []driver.Value) (driver.Result, error) {
-	logrus.Debugf("Got stmt.Exec: %s", s.query)
 	return s.c.Exec(s.query, args)
 }
 
@@ -35,7 +33,6 @@ func (s *stmt) ExecContext(ctx context.Context, args []driver.NamedValue) (drive
 
 // Deprecated: Drivers should implement StmtQueryContext instead (or additionally).
 func (s *stmt) Query(args []driver.Value) (driver.Rows, error) {
-	logrus.Debugf("Got stmt.Query: %s", s.query)
 	return s.c.Query(s.query, args)
 }
 

@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	"github.com/stretchr/testify/mock"
 	"os"
 	"reflect"
@@ -96,7 +95,6 @@ func setupConnTests(t testing.TB) func(t testing.TB) {
 		t.Fatal(err)
 	}
 
-	logrus.SetLevel(logrus.DebugLevel)
 	// Check if the dataset and test table are live...
 	return func(t testing.TB) {
 

@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	"reflect"
 	"testing"
 )
@@ -18,7 +17,6 @@ func setupRowsTest(t testing.TB) func(t testing.TB) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	logrus.SetLevel(logrus.DebugLevel)
 	return func(t testing.TB) {
 
 	}

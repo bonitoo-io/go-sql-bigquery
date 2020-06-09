@@ -4,13 +4,12 @@ import (
 	bigquery2 "cloud.google.com/go/bigquery"
 	"context"
 	"fmt"
+	"github.com/bonitoo-io/go-sql-bigquery"
+	_ "github.com/bonitoo-io/go-sql-bigquery"
 	_ "github.com/infobloxopen/protoc-gen-gorm/types"
 
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
-	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
-	_ "github.com/bonitoo-io/go-sql-bigquery"
-	"github.com/bonitoo-io/go-sql-bigquery"
 	"google.golang.org/api/googleapi"
 	"os"
 	"reflect"
@@ -108,8 +107,6 @@ func (b *Dialect) DataTypeOf(field *gorm.StructField) string {
 		sqlType = "STRING"
 	}
 
-	logrus.Debugf("sqlType: %s", sqlType)
-
 	if sqlType == "" {
 		panic(fmt.Sprintf("invalid sql type %s (%s) for commonDialect", dataValue.Type().Name(), dataValue.Kind().String()))
 	}
@@ -133,7 +130,6 @@ func (b Dialect) RemoveIndex(tableName string, indexName string) error {
 }
 
 func (b *Dialect) HasTable(in string) bool {
-	logrus.Debugf("HasTable| Asking for Table: %s", in)
 	ds := strings.Split(in, ".")
 	var tableName string
 	switch len(ds) {
@@ -145,7 +141,6 @@ func (b *Dialect) HasTable(in string) bool {
 		panic("HasTable| invalid tablename")
 	}
 	client, cfg := getClient()
-	logrus.Debugf("HasTable| Dataset: %s", cfg.DatasetID)
 	d := client.Dataset(cfg.DatasetID)
 	t := d.Table(tableName)
 	md, err := t.Metadata(context.TODO())
@@ -154,10 +149,8 @@ func (b *Dialect) HasTable(in string) bool {
 			if gerr.Code == 404 {
 				return false
 			}
-			logrus.Debugf("Google Error: %s", gerr.Error())
 
 		} else {
-			logrus.Debugf("Unhandled Error from .Metadata: %s", err)
 			panic(err)
 		}
 
