@@ -5,8 +5,8 @@ import (
 	"database/sql/driver"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
-	bigquery "github.com/solcates/go-sql-bigquery"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
+	bigquery "github.com/bonitoo-io/go-sql-bigquery"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )

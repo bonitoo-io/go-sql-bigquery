@@ -1,6 +1,6 @@
 package bigquery
 
-import "github.com/sirupsen/logrus"
+import logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 
 type tx struct {
 	c *Conn

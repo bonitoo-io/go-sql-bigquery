@@ -8,9 +8,9 @@ import (
 
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
-	"github.com/sirupsen/logrus"
-	_ "github.com/solcates/go-sql-bigquery"
-	bigquery "github.com/solcates/go-sql-bigquery"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
+	_ "github.com/bonitoo-io/go-sql-bigquery"
+	"github.com/bonitoo-io/go-sql-bigquery"
 	"google.golang.org/api/googleapi"
 	"os"
 	"reflect"

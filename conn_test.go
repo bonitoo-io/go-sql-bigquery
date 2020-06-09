@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
-	"github.com/sirupsen/logrus"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	"github.com/stretchr/testify/mock"
 	"os"
 	"reflect"

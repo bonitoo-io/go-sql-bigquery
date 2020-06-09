@@ -3,7 +3,7 @@ package bigquery
 import (
 	"context"
 	"database/sql/driver"
-	"github.com/sirupsen/logrus"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 )
 
 type stmt struct {

@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
-	"github.com/sirupsen/logrus"
-	bigquery "github.com/solcates/go-sql-bigquery"
-	_ "github.com/solcates/go-sql-bigquery/dialects/bigquery"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
+	bigquery "github.com/bonitoo-io/go-sql-bigquery"
+	_ "github.com/bonitoo-io/go-sql-bigquery/dialects/bigquery"
 	"os"
 	"time"
 )

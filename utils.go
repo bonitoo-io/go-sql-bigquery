@@ -32,5 +32,4 @@ func ConfigFromConnString(in string) (*Config, error) {
 		// Nope, bad prefix
 		return nil, fmt.Errorf("invalid prefix, expected bigquery:// got: %s", in)
 	}
-
 }

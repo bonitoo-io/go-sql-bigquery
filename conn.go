@@ -6,7 +6,7 @@ import (
 	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
-	"github.com/sirupsen/logrus"
+	logrus "github.com/bonitoo-io/go-sql-bigquery/nolog"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"reflect"
