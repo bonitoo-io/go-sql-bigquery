@@ -227,11 +227,7 @@ func (c *Conn) Ping(ctx context.Context) (err error) {
 	if c.ds == nil {
 		c.ds = c.client.Dataset(c.cfg.DatasetID)
 	}
-	var md *bigquery.DatasetMetadata
-	md, err = c.ds.Metadata(ctx)
-	if err != nil {
-		return
-	}
+	_, err = c.ds.Metadata(ctx)
 	return
 }
 
