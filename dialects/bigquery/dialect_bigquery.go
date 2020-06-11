@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/bonitoo-io/go-sql-bigquery"
-	_ "github.com/bonitoo-io/go-sql-bigquery"
 	_ "github.com/infobloxopen/protoc-gen-gorm/types"
 
 	"github.com/jinzhu/gorm"
