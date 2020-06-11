@@ -10,8 +10,10 @@ jobs:
         environment:
           ENV: CI
           GO111MODULE: "on"
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/creds.json
 
     steps:
       - checkout
+      - run: echo $TEST_GOOGLE_CREDENTIALS | base64 -d > $GOOGLE_APPLICATION_CREDENTIALS
       - run: go get -v -t -d ./...
       - run: go test -v ./...
