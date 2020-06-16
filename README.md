@@ -1,14 +1,15 @@
 #  BigQuery SQL Driver for Golang
-This is an implementation of the BigQuery Client as a database/sql/driver for easy integration and usage.
+This is an implementation of the BigQuery Client as a `database/sql/driver` for easy integration and usage.
 
 # Goals of project
 
-This project is meant to be a basic database/sql driver implementation for Golang so that developers can easily use 
-tools like Gorm, and *sql.DB functions, with Google's BigQuery database.
+This project is meant to be a basic `database/sql` driver implementation for Golang so that developers can easily use 
+`*sql.DB` functions with Google's BigQuery database.
 
-# Usage
-
-Check out the example application in the `examples` directory, for a few examples.
+Unlike the original project, this driver
+- does __not__ contain ORM extension
+- provides explicit authentication support in connection string
+- contains no logging
 
 # Authentication
 
@@ -23,67 +24,34 @@ Connection string examples:
 "bigquery://projectid/location/dataset?credentials=eyJ0eXBlIjoiYXV0..."
 ```
 
-## Vanilla *sql.DB usage
-
-Just like any other database/sql driver you'll need to import it 
+## Usage
 
 ```go
 package main
 
-import (
-    "database/sql"
-    _ "github.com/bonitoo-io/go-sql-bigquery"
-    "log"
-)
+import "github.com/bonitoo-io/go-sql-bigquery"
 
 func main() {
-    db, err := sql.Open("bigquery", 
-        "bigquery://projectid/location/dataset")
+    db, err := sql.Open("bigquery", "bigquery://projectid/location/dataset")
     if err != nil {
         log.Fatal(err)
     }
     defer db.Close() 
-    // Do Something with the DB
-
+    ...
 }
 ```
-
-## Gorm Usage
-
-For gorm
-
-```go
-package main
-
-import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/bonitoo-io/go-sql-bigquery/dialects/bigquery"
-    "log"
-)
-
-func main() {
-    db, err := gorm.Open("bigquery", 
-        "bigquery://projectid/location/dataset")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer db.Close() 
-    // Do Something with the DB
-
-}
-```
-
 
 # Contribution
 
-Pull Requests are welcome!  
-
+Contributions are welcome.  
 
 # Current Support
 
-* [x] driver.Conn implemented
-* [x] driver.Querier implemented
-* [x] driver.Pinger implemented
-* [x] gorm Dialect - have only tested basic use cases
+* [x] `driver.Conn` implemented
+* [x] `driver.Querier` implemented
+* [x] `driver.Pinger` implemented
+* [x] `driver.DriverContext` implemented
+* [x] `driver.QueryerContext` implemented
+* [x] `driver.ExecerContext` implemented
 * [x] Prepared Statements - supported via a quick hack
-* [ ] Parametiterized Queries
+* [ ] Parameterized Queries
