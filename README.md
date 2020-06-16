@@ -53,5 +53,6 @@ Contributions are welcome.
 * [x] `driver.DriverContext` implemented
 * [x] `driver.QueryerContext` implemented
 * [x] `driver.ExecerContext` implemented
+* [x] `driver.RowsColumnTypeDatabaseTypeName` implemented
 * [x] Prepared Statements - supported via a quick hack
 * [ ] Parameterized Queries
