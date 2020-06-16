@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
-	"github.com/stretchr/testify/mock"
 	"os"
 	"reflect"
 	"strings"
@@ -674,7 +673,6 @@ func TestNewConn(t *testing.T) {
 }
 
 type mockDataset struct {
-	mock.Mock
 	*bigquery.Dataset
 	config *Config
 }
