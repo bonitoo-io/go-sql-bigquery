@@ -15,14 +15,14 @@ __Unlike the original project, this driver__
 The connection string format is URL with `bigquery` scheme and host representing project ID.
 Path (optional) represents location (cloud region).  
 
-* `bigquery://projectid`
-* `bigquery://projectid/location`
+* `bigquery://projectid/?param1=value&param2=value`
+* `bigquery://projectid/location?param1=value&param2=value`
 
 ### Common parameters
 
 * `dataset` - dataset ID. When set, it allows to use unqualified tables names in queries.
 
-### Authentication
+### Authentication parameters
 
 As this is using the Google Cloud Go SDK, you will need to have your credentials available
 via the GOOGLE_APPLICATION_CREDENTIALS environment variable point to your credential JSON file.
