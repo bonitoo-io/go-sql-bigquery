@@ -58,7 +58,6 @@ type Config struct {
 type Conn struct {
 	cfg       *Config
 	client    *bigquery.Client
-	ds        Dataset
 	projectID string
 	bad       bool
 	closed    bool
@@ -129,8 +128,10 @@ func (c *Conn) execContext(ctx context.Context, query string, args []driver.Valu
 	}
 
 	q := c.client.Query(query)
-	q.DefaultProjectID = c.cfg.ProjectID // allows omitting project in table reference
-	q.DefaultDatasetID = c.cfg.DatasetID // allows omitting dataset in table reference
+	if c.cfg.DatasetID != "" {
+		q.DefaultProjectID = c.cfg.ProjectID
+		q.DefaultDatasetID = c.cfg.DatasetID
+	}
 	it, err := q.Read(ctx)
 	if err != nil {
 		return nil, err
@@ -175,7 +176,9 @@ func NewConn(ctx context.Context, cfg *Config) (c *Conn, err error) {
 	if err != nil {
 		return nil, err
 	}
-	c.ds = c.client.Dataset(c.cfg.DatasetID)
+	if c.client.Location == "" && cfg.Location != "" {
+		c.client.Location = cfg.Location
+	}
 
 	return
 }
@@ -204,10 +207,8 @@ func (c *Connector) Driver() driver.Driver {
 
 // Ping the BigQuery service and make sure it's reachable
 func (c *Conn) Ping(ctx context.Context) (err error) {
-	if c.ds == nil {
-		c.ds = c.client.Dataset(c.cfg.DatasetID)
-	}
-	_, err = c.ds.Metadata(ctx)
+	q := c.client.Query("SELECT CURRENT_TIMESTAMP()")
+	_, err = q.Read(ctx)
 	return
 }
 
@@ -226,8 +227,10 @@ func (c *Conn) QueryContext(ctx context.Context, query string, args []driver.Nam
 
 func (c *Conn) queryContext(ctx context.Context, query string, args []driver.Value) (driver.Rows, error) {
 	q := c.client.Query(query)
-	q.DefaultProjectID = c.cfg.ProjectID // allows omitting project in table reference
-	q.DefaultDatasetID = c.cfg.DatasetID // allows omitting dataset in table reference
+	if c.cfg.DatasetID != "" {
+		q.DefaultProjectID = c.cfg.ProjectID
+		q.DefaultDatasetID = c.cfg.DatasetID
+	}
 	rowsIterator, err := q.Read(ctx)
 	if err != nil {
 		return nil, err
