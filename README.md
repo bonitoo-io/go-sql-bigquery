@@ -34,7 +34,6 @@ Alternatively, you can use one of the following parameters:
 Examples:  
 * `bigquery://projectid/?apiKey=AIzaSyB6XK8IO5AzKZXoioQOVNTFYzbDBjY5hy4`
 * `bigquery://projectid/?credentials=eyJ0eXBlIjoiYXV0...`
-```
 
 ## Usage
 
