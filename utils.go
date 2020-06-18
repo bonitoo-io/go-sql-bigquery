@@ -18,13 +18,9 @@ func ConfigFromConnString(in string) (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("invalid connection string: %s (%s)", in, err.Error())
 		}
-		fields := strings.Split(strings.TrimPrefix(u.Path, "/"), "/")
-		if len(fields) != 2 {
-			return nil, fmt.Errorf("invalid connection string: %s", in)
-		}
 		cfg.ProjectID = u.Host
-		cfg.Location = fields[0]
-		cfg.DatasetID = fields[1]
+		cfg.Location = strings.Trim(u.Path, "/")
+		cfg.DatasetID = v.Get("dataset")
 		cfg.ApiKey = v.Get("apiKey")
 		cfg.Credentials = v.Get("credentials")
 		return cfg, nil

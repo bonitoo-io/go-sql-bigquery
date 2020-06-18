@@ -17,7 +17,6 @@ const (
 var testConn *Conn
 var testConfig *Config
 var testClient *bigquery.Client
-var testMockDataset *mockDataset
 
 func init() {
 	var err error
@@ -36,7 +35,7 @@ func init() {
 	if err != nil {
 		panic("Can not get dataset, check your connection string, permissions, and that it exists in your project")
 	}
-	// Check if the teable is there... if not let's create it
+	// Check if the table is there... if not let's create it
 	t := ds.Table(testTableName)
 	if _, err := t.Metadata(ctx); err != nil {
 		// Table error
@@ -84,8 +83,6 @@ func setupConnections() (err error) {
 	}
 	testClient, err = bigquery.NewClient(ctx, testConfig.ProjectID)
 	testConn.projectID = testConfig.ProjectID
-	testConn.ds = testClient.Dataset(testConfig.DatasetID)
-	testMockDataset = &mockDataset{}
 	return
 }
 
@@ -115,29 +112,68 @@ func TestConfigFromConnString(t *testing.T) {
 		{
 			name: "OK",
 			args: args{
-				in: "bigquery://projectid/us/dataset1",
+				in: "bigquery://project1/",
+			},
+
+			wantCfg: &Config{
+				ProjectID: "project1",
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK with dataset",
+			args: args{
+				in: "bigquery://project1/?dataset=dataset1",
+			},
+
+			wantCfg: &Config{
+				DatasetID: "dataset1",
+				ProjectID: "project1",
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK with location",
+			args: args{
+				in: "bigquery://project1/us",
+			},
+
+			wantCfg: &Config{
+				Location:  "us",
+				ProjectID: "project1",
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK with location and dataset",
+			args: args{
+				in: "bigquery://project1/us/?dataset=dataset1",
 			},
 
 			wantCfg: &Config{
 				Location:  "us",
 				DatasetID: "dataset1",
-				ProjectID: "projectid",
+				ProjectID: "project1",
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK with credentials",
+			args: args{
+				in: "bigquery://project1/?dataset=dataset1&credentials=xABCD=",
+			},
+
+			wantCfg: &Config{
+				DatasetID: "dataset1",
+				ProjectID: "project1",
+				Credentials: "xABCD=",
 			},
 			wantErr: false,
 		},
 		{
 			name: "Bad Prefix",
 			args: args{
-				in: "bigquey://projectid/us/dataset1",
-			},
-
-			wantCfg: nil,
-			wantErr: true,
-		},
-		{
-			name: "Bad Connection String",
-			args: args{
-				in: "bigquery://projectid/us/dataset1/table",
+				in: "bigquey://project1/?dataset=dataset1",
 			},
 
 			wantCfg: nil,
@@ -167,13 +203,11 @@ func Test_conn_Ping(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		dataset string
 		args    args
 		wantErr bool
 	}{
 		{
 			name:    "OK",
-			dataset: "dataset1",
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -196,7 +230,6 @@ func TestConn_Query(t *testing.T) {
 	type fields struct {
 		cfg       *Config
 		client    *bigquery.Client
-		ds        *bigquery.Dataset
 		projectID string
 		bad       bool
 		closed    bool
@@ -217,6 +250,25 @@ func TestConn_Query(t *testing.T) {
 			name: "SELECT *",
 			args: args{
 				query: "SELECT * FROM dataset1.table1;",
+				args:  nil,
+			},
+			wantRows: &bqRows{
+				columns: []string{"name", "number"},
+				types: []string{"STRING", "INTEGER"},
+				rs: resultSet{
+					data: [][]bigquery.Value{
+						{"hello", int64(1)},
+					},
+					num: 0,
+				},
+				c: testConn,
+			},
+			wantErr: nil,
+		},
+		{
+			name: "SELECT * / implicit dataset reference",
+			args: args{
+				query: "SELECT * FROM table1;",
 				args:  nil,
 			},
 			wantRows: &bqRows{
@@ -288,10 +340,6 @@ func TestConnector_Connect(t *testing.T) {
 			want: &Conn{
 				cfg:    testConfig,
 				client: testClient,
-				ds: &bigquery.Dataset{
-					ProjectID: testConfig.ProjectID,
-					DatasetID: testConfig.DatasetID,
-				},
 				projectID: testConfig.ProjectID,
 				bad:       false,
 				closed:    false,
@@ -398,7 +446,6 @@ func TestConn_Begin(t *testing.T) {
 	type fields struct {
 		cfg       *Config
 		client    *bigquery.Client
-		ds        *bigquery.Dataset
 		projectID string
 		bad       bool
 		closed    bool
@@ -416,7 +463,6 @@ func TestConn_Begin(t *testing.T) {
 			c := &Conn{
 				cfg:       tt.fields.cfg,
 				client:    tt.fields.client,
-				ds:        tt.fields.ds,
 				projectID: tt.fields.projectID,
 				bad:       tt.fields.bad,
 				closed:    tt.fields.closed,
@@ -439,7 +485,6 @@ func TestConn_Close(t *testing.T) {
 	type fields struct {
 		cfg       *Config
 		client    *bigquery.Client
-		ds        *bigquery.Dataset
 		projectID string
 		bad       bool
 		closed    bool
@@ -456,7 +501,6 @@ func TestConn_Close(t *testing.T) {
 			c := &Conn{
 				cfg:       tt.fields.cfg,
 				client:    tt.fields.client,
-				ds:        tt.fields.ds,
 				projectID: tt.fields.projectID,
 				bad:       tt.fields.bad,
 				closed:    tt.fields.closed,
@@ -474,7 +518,6 @@ func TestConn_Exec(t *testing.T) {
 	type fields struct {
 		cfg       *Config
 		client    *bigquery.Client
-		ds        *bigquery.Dataset
 		projectID string
 		bad       bool
 		closed    bool
@@ -497,7 +540,6 @@ func TestConn_Exec(t *testing.T) {
 			c := &Conn{
 				cfg:       tt.fields.cfg,
 				client:    tt.fields.client,
-				ds:        tt.fields.ds,
 				projectID: tt.fields.projectID,
 				bad:       tt.fields.bad,
 				closed:    tt.fields.closed,
@@ -517,33 +559,16 @@ func TestConn_Exec(t *testing.T) {
 func TestConn_Ping(t *testing.T) {
 	teardown := setupConnTests(t)
 	defer teardown(t)
-	type fields struct {
-		cfg       *Config
-		client    *bigquery.Client
-		ds        Dataset
-		projectID string
-		bad       bool
-		closed    bool
-	}
 	type args struct {
 		ctx context.Context
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		wantErr bool
 	}{
 		{
 			name: "OK",
-			fields: fields{
-				cfg: testConfig,
-				client: &bigquery.Client{
-					Location: "us",
-				},
-				ds:        testMockDataset,
-				projectID: testConfig.ProjectID,
-			},
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -552,15 +577,7 @@ func TestConn_Ping(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Conn{
-				cfg:       tt.fields.cfg,
-				client:    tt.fields.client,
-				ds:        tt.fields.ds,
-				projectID: tt.fields.projectID,
-				bad:       tt.fields.bad,
-				closed:    tt.fields.closed,
-			}
-			testMockDataset.config = testConfig
+			c := testConn
 			if err := c.Ping(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("Ping() error = %v, wantErr %v", err, tt.wantErr)
 			}
