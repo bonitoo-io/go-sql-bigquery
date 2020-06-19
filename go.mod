@@ -1,6 +1,6 @@
 module github.com/bonitoo-io/go-sql-bigquery
 
-go 1.13
+go 1.11
 
 require (
 	cloud.google.com/go/bigquery v1.8.0
